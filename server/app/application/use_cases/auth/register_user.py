@@ -30,7 +30,6 @@ class RegisterUser:
             last_name=req.last_name,
             email=req.email,
             password_hash=self.hasher.hash(req.password),
-            avatar_url=req.avatar_url,
         )
         self.user_repo.add(user)
 

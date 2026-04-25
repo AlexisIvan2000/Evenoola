@@ -1,13 +1,23 @@
-from flask import Flask
+from flask_openapi3 import Info, OpenAPI
 
 from app.presentation.blueprints.auth_bp import build_auth_blueprint
 from app.presentation.error_handlers import register_error_handlers
 from app.presentation.rate_limiter import limiter
 
+# Prefixe de versionning de l'API.
+# Bump en v2 le jour ou on casse la compatibilite sans supprimer v1 immediatement.
+API_PREFIX = "/api/v1"
 
-def create_app() -> Flask:
-    flask_app = Flask(__name__)
-    limiter.init_app(flask_app)
-    flask_app.register_blueprint(build_auth_blueprint(), url_prefix="/auth")
-    register_error_handlers(flask_app)
-    return flask_app
+info = Info(
+    title="Evenoola API",
+    version="1.0.0",
+    description="Backend Evenoola — auth, decouverte d'evenements, vote collaboratif",
+)
+
+
+def create_app() -> OpenAPI:
+    app = OpenAPI(__name__, info=info)
+    limiter.init_app(app)
+    app.register_api(build_auth_blueprint())
+    register_error_handlers(app)
+    return app

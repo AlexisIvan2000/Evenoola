@@ -1,6 +1,12 @@
-from flask import Blueprint, g, jsonify, request
+from flask import g, jsonify, request
+from flask_openapi3 import APIBlueprint, Tag
 
-from app.application.dto.auth_dto import LoginRequest, RefreshRequest, RegisterRequest
+from app.application.dto.auth_dto import (
+    LoginRequest,
+    RefreshRequest,
+    RegisterRequest,
+    TokenResponse,
+)
 from app.application.use_cases.auth.login_email_password import LoginEmailPassword
 from app.application.use_cases.auth.logout import Logout
 from app.application.use_cases.auth.refresh_access_token import RefreshAccessToken
@@ -12,9 +18,16 @@ from app.infrastructure.security.password_hasher import PasswordHasher
 from app.infrastructure.security.token_service import TokenService
 from app.presentation.rate_limiter import limiter
 
+auth_tag = Tag(name="Auth", description="Authentication par email + mot de passe (JWT + refresh)")
 
-def build_auth_blueprint() -> Blueprint:
-    bp = Blueprint("auth", __name__)
+
+def build_auth_blueprint() -> APIBlueprint:
+    bp = APIBlueprint(
+        "auth",
+        __name__,
+        url_prefix="/api/v1/auth",
+        abp_tags=[auth_tag],
+    )
     hasher = PasswordHasher()
     tokens = TokenService()
 
@@ -39,48 +52,44 @@ def build_auth_blueprint() -> Blueprint:
         ua = request.headers.get("User-Agent")
         return ua[:255] if ua else None
 
-    @bp.post("/register")
+    @bp.post("/register", responses={"201": TokenResponse})
     @limiter.limit("3 per minute")
-    def register():
-        req = RegisterRequest.model_validate(request.get_json(silent=True) or {})
+    def register(body: RegisterRequest):
         result = RegisterUser(
             user_repo=UserRepository(g.session),
             refresh_repo=RefreshTokenRepository(g.session),
             hasher=hasher,
             tokens=tokens,
-        ).execute(req, device_info=_device_info())
+        ).execute(body, device_info=_device_info())
         return jsonify(result.model_dump()), 201
 
-    @bp.post("/login")
+    @bp.post("/login", responses={"200": TokenResponse})
     @limiter.limit("5 per minute")
-    def login():
-        req = LoginRequest.model_validate(request.get_json(silent=True) or {})
+    def login(body: LoginRequest):
         result = LoginEmailPassword(
             user_repo=UserRepository(g.session),
             refresh_repo=RefreshTokenRepository(g.session),
             hasher=hasher,
             tokens=tokens,
-        ).execute(req, device_info=_device_info())
+        ).execute(body, device_info=_device_info())
         return jsonify(result.model_dump()), 200
 
-    @bp.post("/refresh")
+    @bp.post("/refresh", responses={"200": TokenResponse})
     @limiter.limit("30 per minute")
-    def refresh():
-        req = RefreshRequest.model_validate(request.get_json(silent=True) or {})
+    def refresh(body: RefreshRequest):
         result = RefreshAccessToken(
             refresh_repo=RefreshTokenRepository(g.session),
             tokens=tokens,
-        ).execute(req, device_info=_device_info())
+        ).execute(body, device_info=_device_info())
         return jsonify(result.model_dump()), 200
 
     @bp.post("/logout")
     @limiter.limit("30 per minute")
-    def logout():
-        req = RefreshRequest.model_validate(request.get_json(silent=True) or {})
+    def logout(body: RefreshRequest):
         Logout(
             refresh_repo=RefreshTokenRepository(g.session),
             tokens=tokens,
-        ).execute(req)
+        ).execute(body)
         return "", 204
 
     return bp

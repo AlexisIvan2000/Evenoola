@@ -8,7 +8,6 @@ class RegisterRequest(BaseModel):
     last_name: str
     email: EmailStr
     password: str
-    avatar_url: str | None = None
 
     @field_validator("password")
     @classmethod
