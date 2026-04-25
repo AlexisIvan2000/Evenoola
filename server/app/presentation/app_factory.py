@@ -1,6 +1,7 @@
 from flask_openapi3 import Info, OpenAPI
 
 from app.presentation.blueprints.auth_bp import build_auth_blueprint
+from app.presentation.blueprints.spotify_bp import build_spotify_blueprint
 from app.presentation.error_handlers import register_error_handlers
 from app.presentation.rate_limiter import limiter
 
@@ -19,5 +20,6 @@ def create_app() -> OpenAPI:
     app = OpenAPI(__name__, info=info)
     limiter.init_app(app)
     app.register_api(build_auth_blueprint())
+    app.register_api(build_spotify_blueprint())
     register_error_handlers(app)
     return app

@@ -16,3 +16,7 @@ class InvalidCredentials(DomainError):
 
 class InvalidRefreshToken(DomainError):
     pass
+
+
+class SpotifyAuthError(DomainError):
+    pass
