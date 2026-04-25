@@ -20,3 +20,7 @@ class InvalidRefreshToken(DomainError):
 
 class SpotifyAuthError(DomainError):
     pass
+
+
+class SpotifyNotConnected(DomainError):
+    pass

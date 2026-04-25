@@ -7,6 +7,7 @@ from app.domain.exceptions import (
     InvalidCredentials,
     InvalidRefreshToken,
     SpotifyAuthError,
+    SpotifyNotConnected,
     UserAlreadyExists,
     UserNotFound,
 )
@@ -37,6 +38,10 @@ def register_error_handlers(flask_app: Flask) -> None:
     @flask_app.errorhandler(SpotifyAuthError)
     def _spotify_auth(e: SpotifyAuthError):
         return jsonify({"error": "spotify_auth_error", "message": str(e)}), 401
+
+    @flask_app.errorhandler(SpotifyNotConnected)
+    def _spotify_not_connected(e: SpotifyNotConnected):
+        return jsonify({"error": "spotify_not_connected", "message": str(e)}), 409
 
     @flask_app.errorhandler(429)
     def _rate_limited(e):
