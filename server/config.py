@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()
+load_dotenv(override=True)
 
 class Config:
     # JWT
@@ -16,3 +16,6 @@ class Config:
     # TICKETMASTER
     TICKETMASTER_API_KEY = os.getenv("CONSUMER_KEY")
     TICKETMASTER_SECRET_KEY = os.getenv("CONSUMER_SECRET")
+
+    # TESTING
+    TESTING = os.getenv("TESTING") == "1"
