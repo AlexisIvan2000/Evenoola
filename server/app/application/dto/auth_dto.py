@@ -1,8 +1,9 @@
 import re
+
 from pydantic import BaseModel, EmailStr, field_validator
 
 
-class UserCreate(BaseModel):
+class RegisterRequest(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
@@ -11,7 +12,7 @@ class UserCreate(BaseModel):
 
     @field_validator("password")
     @classmethod
-    def validate_password(cls, value):
+    def validate_password(cls, value: str) -> str:
         if len(value) < 8:
             raise ValueError("Password must be at least 8 characters long")
         if not re.search(r"[A-Z]", value):
@@ -19,25 +20,20 @@ class UserCreate(BaseModel):
         if not re.search(r"[a-z]", value):
             raise ValueError("Password must contain at least one lowercase letter")
         if not re.search(r'[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\;\'`~]', value):
-            raise ValueError('Password must contain at least 1 special character')
+            raise ValueError("Password must contain at least 1 special character")
         return value
 
 
-class UserLogin(BaseModel):
+class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
 
-class UpdateProfile(BaseModel):
-    first_name: str | None = None
-    last_name: str | None = None
-    avatar_url: str | None = None
+class RefreshRequest(BaseModel):
+    refresh_token: str
 
 
 class TokenResponse(BaseModel):
     access_token: str
-    token_type: str
-    token_type: str = "bearer"
-
-class RefreshToken(BaseModel):
     refresh_token: str
+    token_type: str = "bearer"
