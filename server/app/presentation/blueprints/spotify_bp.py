@@ -7,10 +7,8 @@ from pydantic import BaseModel, Field
 
 from app.application.dto.spotify_dto import (
     SpotifyAuthUrlResponse,
-    SpotifyConnectionResponse,
     TopArtistsResponse,
 )
-from app.application.use_cases.spotify.complete_spotify_connect import CompleteSpotifyConnect
 from app.application.use_cases.spotify.get_top_artists import GetTopArtists
 from app.application.use_cases.spotify.start_spotify_connect import StartSpotifyConnect
 from app.infrastructure.external_apis.spotify.spotify_api_client import SpotifyApiClient
@@ -18,7 +16,6 @@ from app.infrastructure.external_apis.spotify.spotify_oauth_client import Spotif
 from app.infrastructure.external_apis.spotify.spotify_token_manager import SpotifyTokenManager
 from app.infrastructure.persistence.database import SessionFactory
 from app.infrastructure.persistence.repositories.spotify_tokens_repository import SpotifyTokensRepository
-from app.infrastructure.persistence.repositories.user_repository import UserRepository
 from app.presentation.middlewares.jwt_required import jwt_required
 from app.presentation.rate_limiter import limiter
 
@@ -26,11 +23,6 @@ spotify_tag = Tag(
     name="Spotify",
     description="Connexion Spotify + recuperation des top artistes / genres pour le Match Score",
 )
-
-
-class SpotifyCallbackQuery(BaseModel):
-    code: str = Field(..., description="Code d'autorisation renvoye par Spotify")
-    state: str = Field(..., description="State HMAC genere lors de /spotify/connect")
 
 
 class TopArtistsQuery(BaseModel):
@@ -67,6 +59,8 @@ def build_spotify_blueprint() -> APIBlueprint:
             session.close()
 
     # ---------- Connexion du compte Spotify ----------
+    # Note: le callback OAuth est en /auth/spotify/callback (hors /api/v1) car c'est un
+    # endpoint de redirect navigateur, pas une API JSON. Voir spotify_callback_bp.py.
 
     @bp.get("/connect", responses={"200": SpotifyAuthUrlResponse})
     @jwt_required
@@ -74,17 +68,6 @@ def build_spotify_blueprint() -> APIBlueprint:
     def connect():
         user_id = UUID(g.current_user_id)
         result = StartSpotifyConnect(oauth=SpotifyOAuthClient()).execute(user_id)
-        return jsonify(result.model_dump()), 200
-
-    @bp.get("/callback", responses={"200": SpotifyConnectionResponse})
-    @limiter.limit("30 per minute")
-    def callback(query: SpotifyCallbackQuery):
-        result = CompleteSpotifyConnect(
-            oauth=SpotifyOAuthClient(),
-            api=SpotifyApiClient(),
-            user_repo=UserRepository(g.session),
-            spotify_repo=SpotifyTokensRepository(g.session),
-        ).execute(query.code, query.state)
         return jsonify(result.model_dump()), 200
 
     # ---------- Donnees musicales du user (Match Score) ----------
