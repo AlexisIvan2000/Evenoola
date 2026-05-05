@@ -16,6 +16,9 @@ class Config:
     # TICKETMASTER
     TICKETMASTER_API_KEY = os.getenv("CONSUMER_KEY")
     TICKETMASTER_SECRET_KEY = os.getenv("CONSUMER_SECRET")
+    TICKETMASTER_CACHE_TTL_SECONDS = int(os.getenv("TICKETMASTER_CACHE_TTL_SECONDS", 7200))  # 2h
+    TICKETMASTER_RATE_LIMIT_RPS = float(os.getenv("TICKETMASTER_RATE_LIMIT_RPS", 4.0))  # client-side, < 5 rps de l'API
+    TICKETMASTER_DAILY_QUOTA = int(os.getenv("TICKETMASTER_DAILY_QUOTA", 5000))
 
     # TESTING
     TESTING = os.getenv("TESTING") == "1"
@@ -27,3 +30,10 @@ class Config:
 
     # FRONTEND
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+    # CACHE
+    # "memory" = in-process dict (mono-worker uniquement). "redis" = a brancher plus tard.
+    CACHE_BACKEND = os.getenv("CACHE_BACKEND", "memory")
+
+    # MUSIC PROFILE
+    MUSIC_PROFILE_TTL_DAYS = int(os.getenv("MUSIC_PROFILE_TTL_DAYS", 7))

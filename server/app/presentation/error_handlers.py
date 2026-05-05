@@ -4,9 +4,11 @@ from flask import Flask, jsonify
 from pydantic import ValidationError
 
 from app.domain.exceptions import (
+    EventsSourceUnavailable,
     InvalidCredentials,
     InvalidLoginCode,
     InvalidRefreshToken,
+    LocationRequired,
     SpotifyAuthError,
     SpotifyNotConnected,
     UserAlreadyExists,
@@ -47,6 +49,22 @@ def register_error_handlers(flask_app: Flask) -> None:
     @flask_app.errorhandler(InvalidLoginCode)
     def _invalid_login_code(e: InvalidLoginCode):
         return jsonify({"error": "invalid_login_code", "message": str(e)}), 401
+
+    @flask_app.errorhandler(LocationRequired)
+    def _location_required(e: LocationRequired):
+        return jsonify({
+            "error": "location_required",
+            "message": str(e) or "Localisation requise (lat/lng en query, ou ville sur le profil).",
+        }), 422
+
+    @flask_app.errorhandler(EventsSourceUnavailable)
+    def _events_source(e: EventsSourceUnavailable):
+        return jsonify({
+            "error": "events_source_unavailable",
+            "source": e.source,
+            "status": e.status,
+            "message": str(e),
+        }), 503
 
     @flask_app.errorhandler(429)
     def _rate_limited(e):

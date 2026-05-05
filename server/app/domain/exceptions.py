@@ -28,3 +28,16 @@ class SpotifyNotConnected(DomainError):
 
 class InvalidLoginCode(DomainError):
     pass
+
+
+class LocationRequired(DomainError):
+    """Geoloc absente : ni query params, ni user.city/country_code, ni spotify_country."""
+    pass
+
+
+class EventsSourceUnavailable(DomainError):
+    """Source d'evenements indisponible (rate limit, quota, network)."""
+    def __init__(self, source: str, status: str, message: str = ""):
+        self.source = source
+        self.status = status
+        super().__init__(message or f"{source} unavailable: {status}")

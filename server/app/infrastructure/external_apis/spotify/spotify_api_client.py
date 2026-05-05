@@ -20,6 +20,11 @@ class SpotifyApiClient:
     def get_top_artists(self, access_token: str, limit: int = 20, time_range: str = "medium_term") -> dict[str, Any]:
         return self._get(f"/me/top/artists?limit={limit}&time_range={time_range}", access_token)
 
+    def get_followed_artists(self, access_token: str, limit: int = 50) -> dict[str, Any]:
+        """Artistes suivis explicitement par l'user. Pagine avec ?after= mais on prend juste
+        les premiers `limit` (50 max par requete Spotify)."""
+        return self._get(f"/me/following?type=artist&limit={limit}", access_token)
+
     def get_recent_tracks(self, access_token: str, limit: int = 30) -> dict[str, Any]:
         return self._get(f"/me/player/recently-played?limit={limit}", access_token)
 

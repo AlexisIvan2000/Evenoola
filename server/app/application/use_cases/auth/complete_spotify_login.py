@@ -94,6 +94,8 @@ class CompleteSpotifyLogin:
             if existing is not None:
                 # Compte legacy email/password : on le rattache a Spotify.
                 existing.spotify_user_id = spotify_user_id
+                if profile.get("country") and not existing.spotify_country:
+                    existing.spotify_country = profile["country"]
                 return existing
 
         display_name = (profile.get("display_name") or "").strip()
@@ -106,6 +108,8 @@ class CompleteSpotifyLogin:
             email=email or f"{spotify_user_id}@spotify.local",
             avatar_url=images[0]["url"] if images else None,
             spotify_user_id=spotify_user_id,
+            # Country Spotify : sert de fallback geoloc si l'user refuse la geoloc browser.
+            spotify_country=profile.get("country"),
         )
         self.user_repo.add(new_user)
         return new_user
