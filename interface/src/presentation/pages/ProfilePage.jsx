@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../application/auth/AuthContext";
 import { useI18n } from "../../application/i18n/I18nContext";
 import { spotifyApi } from "../../infrastructure/api/spotify";
@@ -72,6 +72,9 @@ export default function ProfilePage() {
 
   return (
     <div className="profile-page">
+      <Link to="/events" className="profile-back-link">
+        {t("profile.backToEvents")}
+      </Link>
       <header className="profile-header">
         <div className="avatar">
           {user.avatar_url ? (

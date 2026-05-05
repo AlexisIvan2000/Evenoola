@@ -13,11 +13,15 @@ from config import Config
 AUTH_URL = "https://accounts.spotify.com/authorize"
 TOKEN_URL = "https://accounts.spotify.com/api/token"
 
-# Scopes : tout ce dont on a besoin pour le MatchScore (top artists + genres)
+# Scopes : tout ce dont on a besoin pour le MatchScore (top artists + suivis + genres).
+# IMPORTANT : si tu modifies cette liste apres qu'un user s'est connecte, son token
+# existant n'aura PAS les nouveaux scopes -> il devra re-login (Spotify reaffichera
+# l'ecran de consentement avec les scopes additionnels).
 SCOPES = " ".join([
     "user-read-private",
     "user-read-email",
     "user-top-read",
+    "user-follow-read",            # /me/following?type=artist
     "user-read-recently-played",
 ])
 

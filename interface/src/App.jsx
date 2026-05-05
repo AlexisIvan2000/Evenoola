@@ -3,6 +3,7 @@ import { AuthProvider } from "./application/auth/AuthContext";
 import { I18nProvider } from "./application/i18n/I18nContext";
 import { RequireAuth } from "./presentation/components/RequireAuth";
 import AuthCallbackPage from "./presentation/pages/AuthCallbackPage";
+import EventsPage from "./presentation/pages/EventsPage";
 import LoginPage from "./presentation/pages/LoginPage";
 import ProfilePage from "./presentation/pages/ProfilePage";
 import "./App.css";
@@ -16,6 +17,14 @@ export default function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
             <Route
+              path="/events"
+              element={
+                <RequireAuth>
+                  <EventsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
               path="/profile"
               element={
                 <RequireAuth>
@@ -23,7 +32,7 @@ export default function App() {
                 </RequireAuth>
               }
             />
-            <Route path="/" element={<Navigate to="/profile" replace />} />
+            <Route path="/" element={<Navigate to="/events" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </AuthProvider>

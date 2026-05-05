@@ -3,6 +3,7 @@ from flask_openapi3 import Info, OpenAPI
 
 from app.presentation.blueprints.auth_bp import build_auth_blueprint
 from app.presentation.blueprints.events_bp import build_events_blueprint
+from app.presentation.blueprints.geocode_bp import build_geocode_blueprint
 from app.presentation.blueprints.spotify_bp import build_spotify_blueprint
 from app.presentation.blueprints.spotify_callback_bp import build_spotify_callback_blueprint
 from app.presentation.blueprints.users_bp import build_users_blueprint
@@ -33,6 +34,7 @@ def create_app() -> OpenAPI:
     app.register_api(build_users_blueprint())
     app.register_api(build_spotify_blueprint())
     app.register_api(build_events_blueprint())
+    app.register_api(build_geocode_blueprint())
     app.register_blueprint(build_spotify_callback_blueprint())
     register_error_handlers(app)
     return app

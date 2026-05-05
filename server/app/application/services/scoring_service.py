@@ -102,9 +102,19 @@ def score_event(event: dict[str, Any], profile: dict[str, Any]) -> ScoredEvent:
     )
 
 
-def score_events(events: list[dict[str, Any]], profile: dict[str, Any]) -> list[ScoredEvent]:
-    """Score + tri descendant + filtre score > 0."""
+def score_events(
+    events: list[dict[str, Any]],
+    profile: dict[str, Any],
+    show_all: bool = False,
+) -> list[ScoredEvent]:
+    """Score + tri descendant.
+
+    Par defaut on filtre score > 0 (events sans match du tout sont caches).
+    Si `show_all=True`, on garde tous les events (utile quand le profil est trop
+    pointu vs l'offre TM locale et qu'on aurait sinon une liste vide).
+    """
     scored = [score_event(e, profile) for e in events]
-    scored = [s for s in scored if s.score > 0]
+    if not show_all:
+        scored = [s for s in scored if s.score > 0]
     scored.sort(key=lambda s: s.score, reverse=True)
     return scored

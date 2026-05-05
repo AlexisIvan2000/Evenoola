@@ -35,7 +35,7 @@ export default function AuthCallbackPage() {
     if (!code || status === "error" || consumed.current) return;
     consumed.current = true;
     completeLogin(code)
-      .then(() => navigate("/profile", { replace: true }))
+      .then(() => navigate("/events", { replace: true }))
       .catch((err) => {
         setError(err.response?.data?.message || t("callback.errorExchange"));
       });

@@ -81,12 +81,14 @@ def build_events_blueprint() -> APIBlueprint:
             radius_km=query.radius_km,
             days_ahead=query.days_ahead,
             limit=query.limit,
+            show_all=query.show_all,
         )
 
         return jsonify({
             "events": result.events,
             "source_status": result.source_status,
             "profile_computed_at": result.profile_computed_at.isoformat(),
+            "total_found": result.total_found,
         }), 200
 
     return bp

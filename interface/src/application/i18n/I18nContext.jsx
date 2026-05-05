@@ -32,12 +32,19 @@ export function I18nProvider({ children }) {
     }
   }, []);
 
-  // t("login.title") -> string (fallback sur la cle si la traduction manque).
+  // t("login.title") -> string. t("events.matchScore", { score: 87 }) -> "87% match".
+  // Fallback sur la cle si la traduction manque.
   const t = useCallback(
-    (key) => {
+    (key, vars) => {
       const dict = translations[locale] || translations[DEFAULT_LOCALE];
-      const value = key.split(".").reduce((acc, k) => acc?.[k], dict);
-      return typeof value === "string" ? value : key;
+      let value = key.split(".").reduce((acc, k) => acc?.[k], dict);
+      if (typeof value !== "string") return key;
+      if (vars) {
+        for (const [k, v] of Object.entries(vars)) {
+          value = value.replaceAll(`{${k}}`, String(v));
+        }
+      }
+      return value;
     },
     [locale],
   );

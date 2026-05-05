@@ -7,11 +7,18 @@ Sources V1 :
   - followed_artists (1.0, uniforme)
 
 Sortie : dict serialisable JSON, weights normalises 0..1.
+
+Robustesse : chaque source est isolee dans un try/except. Si une source plante
+(scope manquant, network, 5xx Spotify), on log et on continue avec les autres
+plutot que de tuer le pipeline complet.
 """
+import logging
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
 from app.infrastructure.external_apis.spotify.spotify_api_client import SpotifyApiClient
+
+log = logging.getLogger(__name__)
 
 # Poids par source. Editable ici sans toucher au scoring.
 SOURCE_WEIGHTS = {
@@ -43,20 +50,29 @@ def build_music_profile(api: SpotifyApiClient, access_token: str) -> dict[str, A
     artists: dict[str, ArtistEntry] = {}
 
     # 1) Followed artists : poids uniforme, signal d'intention le plus fort.
-    followed_resp = api.get_followed_artists(access_token, limit=FOLLOWED_LIMIT)
-    for a in (followed_resp.get("artists") or {}).get("items", []):
-        entry = _ensure_entry(artists, a)
-        entry.followed = True
-        entry.weight += SOURCE_WEIGHTS["followed"]
+    #    Necessite le scope user-follow-read. Skip si manquant (403) ou network error.
+    try:
+        followed_resp = api.get_followed_artists(access_token, limit=FOLLOWED_LIMIT)
+        for a in (followed_resp.get("artists") or {}).get("items", []):
+            entry = _ensure_entry(artists, a)
+            entry.followed = True
+            entry.weight += SOURCE_WEIGHTS["followed"]
+    except Exception as e:
+        log.warning("build_music_profile: followed_artists fetch failed: %s", e)
 
-    # 2) Top artists sur les 3 fenetres temporelles, rank-weighted.
+    # 2) Top artists sur les 3 fenetres temporelles, rank-weighted. Chaque fenetre est
+    #    independante : si une fenetre rate, on continue avec les autres.
     for time_range, source_key in (
         ("short_term", "short_term"),
         ("medium_term", "medium_term"),
         ("long_term", "long_term"),
     ):
-        resp = api.get_top_artists(access_token, limit=TOP_LIMIT, time_range=time_range)
-        items = resp.get("items", [])
+        try:
+            resp = api.get_top_artists(access_token, limit=TOP_LIMIT, time_range=time_range)
+            items = resp.get("items", [])
+        except Exception as e:
+            log.warning("build_music_profile: top_artists/%s fetch failed: %s", time_range, e)
+            continue
         n = len(items)
         for rank, a in enumerate(items, start=1):
             entry = _ensure_entry(artists, a)

@@ -42,6 +42,7 @@ class RecommendedEventsResponse(BaseModel):
     events: list[EventResponse]
     source_status: Literal["live", "cached", "rate_limited", "quota_exhausted", "error"]
     profile_computed_at: str                   # ISO datetime du profil utilise
+    total_found: int                           # nb d'events TM bruts (avant filtrage scoring)
 
 
 class RecommendedEventsQuery(BaseModel):
@@ -50,3 +51,4 @@ class RecommendedEventsQuery(BaseModel):
     radius_km: int = Field(default=50, ge=1, le=500)
     days_ahead: int = Field(default=60, ge=1, le=365, description="Fenetre depuis aujourd'hui")
     limit: int = Field(default=30, ge=1, le=100)
+    show_all: bool = Field(default=False, description="Bypass le filtre score>0 et renvoie tous les events tries")

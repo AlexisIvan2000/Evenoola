@@ -72,3 +72,16 @@ def register_error_handlers(flask_app: Flask) -> None:
             "error": "rate_limited",
             "message": "Too many requests, please try again later",
         }), 429
+
+    # Catch-all : toute exception non geree devient une 500 JSON propre.
+    # Sans ca, Flask renvoie une 500 HTML qui zappe les after_request handlers
+    # (notamment flask-cors), ce qui se manifeste cote browser comme une erreur CORS
+    # alors que le vrai probleme est une exception backend.
+    @flask_app.errorhandler(Exception)
+    def _unhandled(e: Exception):
+        flask_app.logger.exception("Unhandled exception")
+        return jsonify({
+            "error": "internal_error",
+            "message": str(e) or "Internal server error",
+            "type": e.__class__.__name__,
+        }), 500

@@ -7,9 +7,12 @@
   5. Generer les match_reasons
   6. Trier, limiter, retourner avec source_status
 """
+import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
+
+log = logging.getLogger(__name__)
 
 from app.application.services.match_reasons_service import generate_reasons
 from app.application.services.scoring_service import score_events
@@ -39,6 +42,7 @@ class RecommendedEvents:
     events: list[dict]               # liste de dicts pretes pour le DTO
     source_status: str
     profile_computed_at: datetime
+    total_found: int                 # nb d'events bruts cote Ticketmaster (avant filtre)
 
 
 class GetRecommendedEvents:
@@ -62,6 +66,7 @@ class GetRecommendedEvents:
         radius_km: int,
         days_ahead: int,
         limit: int,
+        show_all: bool = False,
     ) -> RecommendedEvents:
         # --- 1. Geoloc ---
         location = self._resolve_location(user_id, lat, lng)
@@ -87,16 +92,31 @@ class GetRecommendedEvents:
         )
 
         # --- 4. Scoring + 5. Reasons ---
-        scored = score_events(result.events, profile_data)
+        scored = score_events(result.events, profile_data, show_all=show_all)
         events_out: list[dict] = []
         for s in scored[:limit]:
             reasons = generate_reasons(s)
             events_out.append(_event_to_dict(s, reasons))
 
+        log.info(
+            "events.recommended user=%s loc=%s,%s tm_status=%s tm_raw=%d scored_kept=%d show_all=%s "
+            "profile_artists=%d profile_genres=%d",
+            user_id,
+            location.lat,
+            location.lng,
+            result.status,
+            len(result.events),
+            len(events_out),
+            show_all,
+            len(profile_data["artists"] or {}),
+            len(profile_data["genres"] or {}),
+        )
+
         return RecommendedEvents(
             events=events_out,
             source_status=result.status,
             profile_computed_at=profile.computed_at,
+            total_found=len(result.events),
         )
 
     # ---------- helpers ----------
