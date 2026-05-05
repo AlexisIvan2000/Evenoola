@@ -6,7 +6,11 @@ export function RequireAuth({ children }) {
   const location = useLocation();
 
   if (loading) {
-    return <div className="loading">Chargement...</div>;
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner" aria-label="Chargement" />
+      </div>
+    );
   }
   if (!user) {
     // On memorise d'ou venait l'user pour le rediriger apres login (option future).

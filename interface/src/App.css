@@ -1,247 +1,830 @@
-/* Reset / base */
+/* ============================================================
+   Design tokens — palette inspiree du logo Evenoola
+   ============================================================ */
+:root {
+  --color-bg: #fafafa;
+  --color-text: #0f1729;
+  --color-text-muted: #6b7280;
+  --color-border: rgba(15, 23, 41, 0.06);
+  --color-card: #ffffff;
+
+  /* Palette derivee du logo : corail (pantalons), navy (cheveux), accents secondaires.
+     Pas de magenta : couleur etrangere a l'identite. */
+  --color-coral: #E8503D;
+  --color-coral-light: #FF7050;
+  --color-coral-deep: #C03D2F;
+  --color-navy: #2C3E5C;
+  --color-orange: #FF8C42;
+  --color-yellow: #F4B942;
+  --color-indigo: #4f46e5;
+  --color-green: #10b981;
+
+  --color-spotify: #1db954;
+  --color-spotify-hover: #1ed760;
+
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fecaca;
+  --color-error-text: #dc2626;
+
+  /* Gradient hero : corail tout du long, juste une respiration de teinte. */
+  --gradient-brand: linear-gradient(135deg, #E8503D 0%, #FF7050 50%, #E8503D 100%);
+  /* Gradient bouton : orange chaud -> corail (deux nuances de la palette logo). */
+  --gradient-warm: linear-gradient(135deg, #FF8C42 0%, #E8503D 100%);
+
+  --shadow-sm: 0 1px 3px rgba(15, 23, 41, 0.04);
+  --shadow-md: 0 8px 32px rgba(15, 23, 41, 0.05);
+  --shadow-lg: 0 24px 70px rgba(15, 23, 41, 0.08), 0 4px 16px rgba(232, 80, 61, 0.05);
+  --shadow-button: 0 4px 14px rgba(232, 80, 61, 0.28);
+  --shadow-spotify: 0 4px 14px rgba(29, 185, 84, 0.3);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ============================================================
+   Reset + base
+   ============================================================ */
 * { box-sizing: border-box; }
+
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
-  background: #f6f7fb;
-  color: #1f2330;
+  min-height: 100vh;
+  font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-a { color: #4f46e5; }
+a { color: var(--color-coral); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.7; }
 
+/* Fond uni #fafafa — laisser respirer le logo et le contenu.
+   Pas de blobs colores : ils creaient du bruit visuel face au logo deja vibrant. */
+
+/* ============================================================
+   Boutons
+   ============================================================ */
 button {
+  position: relative;
   cursor: pointer;
-  font: inherit;
-  padding: 10px 18px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 20px;
   border: none;
-  border-radius: 8px;
-  background: #4f46e5;
+  border-radius: 12px;
+  background: var(--gradient-warm);
   color: #fff;
-  transition: background 0.15s;
+  transition: transform 0.25s var(--ease-out), box-shadow 0.25s var(--ease-out), opacity 0.2s;
+  box-shadow: var(--shadow-button);
+  overflow: hidden;
+  isolation: isolate;
 }
-button:hover:not(:disabled) { background: #4338ca; }
-button:disabled { opacity: 0.6; cursor: not-allowed; }
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(236, 72, 153, 0.35);
+}
+button:active:not(:disabled) { transform: translateY(0); }
+button:disabled { opacity: 0.55; cursor: not-allowed; }
+
 button.ghost {
   background: transparent;
-  color: #4f46e5;
-  border: 1px solid #4f46e5;
+  color: var(--color-text);
+  border: 1.5px solid var(--color-border);
+  box-shadow: none;
 }
 button.ghost:hover:not(:disabled) {
-  background: #eef2ff;
+  border-color: var(--color-coral);
+  color: var(--color-coral);
+  background: rgba(232, 80, 61, 0.05);
 }
 
+/* ============================================================
+   Inputs
+   ============================================================ */
 input {
   font: inherit;
   width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  background: #fff;
-  margin-top: 4px;
+  padding: 11px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.6);
+  margin-top: 6px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 input:focus {
   outline: none;
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  background: #fff;
+  border-color: var(--color-coral);
+  box-shadow: 0 0 0 4px rgba(232, 80, 61, 0.12);
 }
 
 label {
   display: block;
   font-weight: 500;
-  font-size: 14px;
-  color: #374151;
+  font-size: 13px;
+  color: var(--color-text);
+  letter-spacing: -0.005em;
 }
 label small {
   display: block;
-  margin-top: 4px;
+  margin-top: 6px;
   font-weight: 400;
   font-size: 12px;
-  color: #6b7280;
+  color: var(--color-text-muted);
 }
 
-.loading {
-  text-align: center;
-  padding: 60px 20px;
-  color: #6b7280;
-}
+/* ============================================================
+   Etats : loading / error / muted
+   ============================================================ */
+.muted { color: var(--color-text-muted); }
 
 .error {
-  color: #dc2626;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  padding: 10px 12px;
-  border-radius: 8px;
+  color: var(--color-error-text);
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error-border);
+  padding: 11px 14px;
+  border-radius: 10px;
   margin: 0;
-  font-size: 14px;
+  font-size: 13.5px;
 }
 
-.muted { color: #6b7280; }
+.loading-screen {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+}
 
-/* ---------- Pages auth (login / register / spotify-callback) ---------- */
+.loading-spinner {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0%, var(--color-orange) 30%, var(--color-coral) 60%, var(--color-navy) 90%, transparent 100%);
+  animation: spin 1.1s linear infinite;
+}
+.loading-spinner::after {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  background: var(--color-bg);
+  border-radius: 50%;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ============================================================
+   Login page : layout split-screen (1.1 / 1)
+   - Cote gauche sombre : branding (titre + logo dans un cercle clair + slogan)
+   - Cote droit clair : flow d'authentification
+   ============================================================ */
+.login-split {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+}
+
+.login-left {
+  position: relative;
+  background: #0F0F0E;
+  color: #fff;
+  display: flex;
+  /* Bloc ancre en haut du cote sombre (au lieu de centre verticalement).
+     Le wordmark s'affiche pres du haut, le logo dessous, puis le slogan. */
+  align-items: flex-start;
+  justify-content: center;
+  padding: clamp(56px, 7vh, 120px) clamp(40px, 5vw, 96px) clamp(48px, 5vw, 96px);
+  overflow: hidden;
+  isolation: isolate;
+}
+/* Halo coral subtle pour donner de la profondeur au fond noir */
+.login-left::before {
+  content: "";
+  position: absolute;
+  inset: -120px;
+  background:
+    radial-gradient(circle at 30% 35%, rgba(232, 80, 61, 0.18), transparent 55%),
+    radial-gradient(circle at 70% 75%, rgba(44, 62, 92, 0.22), transparent 60%);
+  pointer-events: none;
+  z-index: -1;
+  animation: haloShift 18s ease-in-out infinite;
+}
+
+@keyframes haloShift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(20px, -20px) scale(1.05); }
+}
+
+.login-left-inner {
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(24px, 3vw, 40px);
+  max-width: 460px;
+  animation: fadeInLeft 0.8s var(--ease-out) both;
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.brand-title {
+  margin: 0;
+  font-size: clamp(34px, 5vw, 68px);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 0.95;
+}
+
+/* Logo en transparence sur fond noir : drop-shadow pour un glow corail qui suit
+   le contour reel des danseurs (pas un rectangle), couple a un float vertical et
+   une pulsation du glow. */
+.brand-logo {
+  width: clamp(220px, 26vw, 340px);
+  height: auto;
+  animation:
+    logoFloat 5s ease-in-out infinite,
+    logoGlow 5s ease-in-out infinite;
+}
+
+@keyframes logoGlow {
+  0%, 100% {
+    filter:
+      drop-shadow(0 0 40px rgba(232, 80, 61, 0.25))
+      drop-shadow(0 12px 32px rgba(0, 0, 0, 0.4));
+  }
+  50% {
+    filter:
+      drop-shadow(0 0 80px rgba(232, 80, 61, 0.5))
+      drop-shadow(0 16px 40px rgba(0, 0, 0, 0.5));
+  }
+}
+
+.brand-slogan {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 420px;
+}
+.brand-slogan-q {
+  margin: 0;
+  font-size: clamp(22px, 2.4vw, 32px);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  color: rgba(255, 255, 255, 0.95);
+}
+.brand-slogan-a {
+  margin: 0;
+  font-size: clamp(14px, 1.15vw, 17px);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+}
+
+/* ---------- Cote droit (clair) ---------- */
+.login-right {
+  background: #FAFAF7;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(28px, 3vw, 48px) clamp(24px, 4vw, 64px) clamp(28px, 3vw, 48px);
+}
+
+/* Header en haut a droite : equilibre l'air mort qu'avait le cote droit. */
+.login-right-header {
+  display: flex;
+  justify-content: flex-end;
+  animation: fadeInRight 0.7s var(--ease-out) 0.05s both;
+}
+
+.lang-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 8px;
+  background: rgba(15, 23, 41, 0.04);
+  border-radius: 999px;
+  font-size: 13px;
+}
+.lang-option {
+  background: none;
+  color: var(--color-text-muted);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  box-shadow: none;
+}
+.lang-option:hover:not(:disabled) {
+  color: var(--color-text);
+  background: rgba(15, 23, 41, 0.04);
+  transform: none;
+  box-shadow: none;
+}
+.lang-option.active {
+  color: var(--color-coral);
+  font-weight: 600;
+  background: rgba(232, 80, 61, 0.1);
+}
+.lang-option.active:hover:not(:disabled) {
+  background: rgba(232, 80, 61, 0.14);
+}
+.lang-sep {
+  color: var(--color-text-muted);
+  opacity: 0.4;
+  font-size: 12px;
+}
+
+.login-right-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.login-right-inner {
+  width: 100%;
+  max-width: 440px;
+  animation: fadeInRight 0.8s var(--ease-out) 0.1s both;
+}
+
+.login-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 4px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border);
+  font-size: 12.5px;
+  color: var(--color-text-muted);
+  animation: fadeInRight 0.8s var(--ease-out) 0.3s both;
+}
+.login-footer a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.18s;
+}
+.login-footer a:hover {
+  color: var(--color-coral);
+  opacity: 1;
+}
+.login-footer-sep { opacity: 0.5; }
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.overline {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-coral);
+}
+
+.login-title {
+  margin: 0 0 18px;
+  font-size: clamp(34px, 4.2vw, 52px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+.login-text {
+  margin: 0 0 32px;
+  font-size: clamp(14px, 1.05vw, 16.5px);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+/* ---------- Responsive : stack vertical sous 900px ---------- */
+@media (max-width: 900px) {
+  .login-split {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+  }
+  .login-left {
+    padding: 48px 24px;
+    min-height: auto;
+  }
+  .login-left-inner { gap: 20px; }
+  .brand-title { font-size: clamp(40px, 11vw, 64px); }
+  .brand-logo { width: clamp(180px, 45vw, 240px); }
+  .brand-slogan { font-size: 15px; }
+  .login-right { padding: 40px 24px 60px; }
+}
+
+/* ============================================================
+   Auth pages (callback uniquement maintenant)
+   ============================================================ */
 .auth-page {
   min-height: 100vh;
   display: grid;
   place-items: center;
-  padding: 24px;
+  padding: 32px 20px;
 }
+
 .auth-card {
   width: 100%;
-  max-width: 420px;
-  background: #fff;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 30px rgba(0, 0, 0, 0.05);
+  /* Largeur fluide : ~45% du viewport, mais avec garde-fous min/max.
+     - mobile (<800px) : fallback sur 100% du conteneur
+     - desktop standard : grossit avec l'ecran
+     - tres grand ecran : capee a 720px pour ne pas devenir absurde */
+  max-width: clamp(380px, 45vw, 720px);
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 24px;
+  padding: clamp(32px, 4vw, 56px) clamp(28px, 3.5vw, 48px);
+  box-shadow: var(--shadow-lg);
+  animation: cardEnter 0.7s var(--ease-out) both;
 }
-.auth-card h1 {
-  margin: 0 0 24px;
-  font-size: 28px;
+
+@keyframes cardEnter {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+
+.login-logo {
+  display: block;
+  width: clamp(180px, 22vw, 280px);
+  height: auto;
+  margin: -8px auto 8px;
+  animation: logoFloat 5s ease-in-out infinite;
+  /* Le PNG a un fond blanc opaque : on le "perfore" via blend mode.
+     Blanc * fond = fond, donc les pixels blancs disparaissent dans la carte. */
+  mix-blend-mode: multiply;
 }
-.auth-form button[type="submit"] {
-  margin-top: 8px;
+
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
 }
-.auth-switch {
-  margin: 24px 0 0;
+
+.hero-title {
   text-align: center;
-  color: #6b7280;
-  font-size: 14px;
-}
-.button-link {
-  display: inline-block;
-  margin-top: 16px;
-  padding: 10px 18px;
-  background: #4f46e5;
-  color: #fff;
-  border-radius: 8px;
-  text-decoration: none;
-}
-.button-link:hover { background: #4338ca; }
-
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin: 0 0 14px;
 }
 
-/* ---------- Profile ---------- */
-.profile-page {
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 32px 24px;
-}
-.profile-header {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 32px;
-}
-.profile-header h1 {
-  margin: 0;
-  font-size: 24px;
-}
-.profile-header p { margin: 4px 0 0; }
-.avatar img,
-.avatar-placeholder {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-.avatar-placeholder {
-  display: grid;
-  place-items: center;
-  background: #4f46e5;
-  color: #fff;
-  font-weight: 600;
-  font-size: 24px;
+.hero-subtitle {
+  text-align: center;
+  font-size: clamp(14px, 1.1vw, 17px);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  margin: 0 0 20px;
 }
 
-.card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-.card-header h2 {
-  margin: 0;
-  font-size: 18px;
+/* Justification "pourquoi Spotify" : transforme la friction en feature.
+   Plus discret que le subtitle (icone tagline), separe visuellement par un liseret coral subtle. */
+.login-rationale {
+  text-align: center;
+  font-size: clamp(12.5px, 0.95vw, 14px);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  margin: 0 0 24px;
+  padding: 12px 16px;
+  background: rgba(232, 80, 61, 0.05);
+  border-radius: 10px;
+  border-left: 3px solid var(--color-coral);
+  text-align: left;
 }
 
-.profile-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.gradient-text {
+  background: var(--gradient-brand);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradientShift 6s ease-in-out infinite;
 }
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* ---------- Bouton Spotify ---------- */
 .spotify-button {
   width: 100%;
-  margin-top: 16px;
-  padding: 14px 18px;
-  background: #1db954;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 0.9vw, 14px);
+  padding: clamp(13px, 1.2vw, 18px) clamp(20px, 2vw, 32px);
+  background: var(--color-spotify);
   color: #fff;
   font-weight: 600;
-  font-size: 15px;
+  font-size: clamp(14px, 1.1vw, 17px);
+  letter-spacing: 0.005em;
   border-radius: 999px;
+  box-shadow: var(--shadow-spotify);
+  position: relative;
 }
 .spotify-button:hover:not(:disabled) {
-  background: #1aa34a;
+  background: var(--color-spotify-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(29, 185, 84, 0.4);
+}
+.spotify-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-110%);
+  transition: transform 0.7s var(--ease-out);
+  pointer-events: none;
+}
+.spotify-button:hover:not(:disabled)::before { transform: translateX(110%); }
+
+.spotify-icon {
+  width: clamp(20px, 1.6vw, 26px);
+  height: clamp(20px, 1.6vw, 26px);
+  flex-shrink: 0;
+}
+
+/* ---------- Auth callback (loading state) ---------- */
+.callback-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.callback-card h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* ============================================================
+   Profile
+   ============================================================ */
+.profile-page {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+.profile-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 36px;
+  animation: fadeInUp 0.6s var(--ease-out) both;
+}
+.profile-header h1 {
+  margin: 0 0 4px;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Avatar avec ring degrade tournant */
+.avatar {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  padding: 3px;
+  border-radius: 50%;
+  isolation: isolate;
+}
+.avatar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--color-orange), var(--color-coral), var(--color-navy), var(--color-yellow), var(--color-orange));
+  animation: spin 9s linear infinite;
+  z-index: -1;
+}
+.avatar img,
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  background: #fff;
+  border: 3px solid #fff;
+}
+.avatar-placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--gradient-warm);
+  color: #fff;
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+}
+
+/* Cards avec stagger fade-in */
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-md);
+  animation: fadeInUp 0.6s var(--ease-out) backwards;
+}
+.card:nth-of-type(1) { animation-delay: 0.1s; }
+.card:nth-of-type(2) { animation-delay: 0.2s; }
+.card:nth-of-type(3) { animation-delay: 0.3s; }
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.card-header h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form profile */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 4px;
 }
 
 /* ---------- Grille artistes ---------- */
 .artists-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 18px;
 }
+
 .artist-card {
+  --i: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   text-decoration: none;
   color: inherit;
-  padding: 12px;
-  border-radius: 12px;
-  transition: background 0.15s;
+  padding: 16px 12px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out), border-color 0.3s;
+  animation: fadeInUp 0.5s var(--ease-out) backwards;
+  animation-delay: calc(0.05s * var(--i));
 }
 .artist-card:hover {
-  background: #f3f4f6;
+  transform: translateY(-4px);
+  box-shadow: 0 14px 32px rgba(15, 23, 41, 0.08);
+  border-color: rgba(232, 80, 61, 0.25);
 }
-.artist-card img,
-.artist-placeholder {
+.artist-card-img-wrap {
   width: 100%;
   aspect-ratio: 1;
   border-radius: 50%;
+  overflow: hidden;
+  margin-bottom: 12px;
+  position: relative;
+  background: linear-gradient(135deg, #ffe5dc, #fdd0c5);
+}
+.artist-card-img-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+.artist-card img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  margin-bottom: 8px;
+  transition: transform 0.5s var(--ease-out);
 }
-.artist-placeholder {
-  background: #e5e7eb;
-}
+.artist-card:hover img { transform: scale(1.08); }
+
 .artist-name {
-  font-weight: 500;
+  font-weight: 600;
   font-size: 14px;
+  letter-spacing: -0.005em;
+  line-height: 1.3;
 }
 .artist-genre {
   font-size: 12px;
-  margin-top: 2px;
+  margin-top: 4px;
   text-transform: capitalize;
+}
+
+/* Skeleton loader pour artistes */
+.artist-skeleton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+}
+.skeleton-circle {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  margin-bottom: 12px;
+  background: linear-gradient(90deg, #f0f0f0 0%, #f8f8f8 50%, #f0f0f0 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+.skeleton-line {
+  width: 70%;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f0f0 0%, #f8f8f8 50%, #f0f0f0 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ============================================================
+   Utility : link-button (callback page)
+   ============================================================ */
+.button-link {
+  display: inline-block;
+  padding: 11px 22px;
+  background: var(--gradient-warm);
+  color: #fff;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: var(--shadow-button);
+  transition: transform 0.2s var(--ease-out), box-shadow 0.25s;
+}
+.button-link:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 22px rgba(236, 72, 153, 0.35);
+  opacity: 1;
+}
+
+/* ============================================================
+   Reduced motion : on coupe les animations couteuses
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .bg-blob, .login-logo, .gradient-text, .avatar::before { animation: none !important; }
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 600px) {
+  .auth-card { padding: 32px 24px; border-radius: 20px; }
+  .login-logo { width: 160px; }
+  .hero-title { font-size: 26px; }
+  .profile-page { padding: 32px 16px 60px; }
+  .profile-header {
+    grid-template-columns: auto 1fr;
+    gap: 16px;
+  }
+  .profile-header > button { grid-column: 1 / -1; justify-self: stretch; }
+  .card { padding: 22px 18px; border-radius: 18px; }
+  .form-row { grid-template-columns: 1fr; }
 }

@@ -1,25 +1,30 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../application/auth/AuthContext";
+import { useI18n } from "../../application/i18n/I18nContext";
 
-const REASON_LABELS = {
-  invalid_state: "Lien d'autorisation invalide ou expire. Reessaie depuis la page de connexion.",
-  spotify_error: "Spotify a refuse l'autorisation. Reessaie plus tard.",
-  missing_params: "Reponse Spotify incomplete. Reessaie depuis la page de connexion.",
-  access_denied: "Tu as refuse d'autoriser Evenoola.",
+// Mapping reason backend -> cle de traduction.
+const REASON_KEYS = {
+  invalid_state: "callback.reasonInvalidState",
+  spotify_error: "callback.reasonSpotifyError",
+  missing_params: "callback.reasonMissingParams",
+  access_denied: "callback.reasonAccessDenied",
 };
 
 export default function AuthCallbackPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const { completeLogin } = useAuth();
+  const { t } = useI18n();
 
   const code = params.get("code");
   const status = params.get("status");
   const reason = params.get("reason");
 
   const [error, setError] = useState(
-    status === "error" ? REASON_LABELS[reason] || "Une erreur est survenue." : null,
+    status === "error"
+      ? (REASON_KEYS[reason] ? t(REASON_KEYS[reason]) : t("callback.errorGeneric"))
+      : null,
   );
 
   // Garde anti-double-execution : en mode StrictMode (dev), useEffect tourne 2x,
@@ -32,25 +37,30 @@ export default function AuthCallbackPage() {
     completeLogin(code)
       .then(() => navigate("/profile", { replace: true }))
       .catch((err) => {
-        setError(err.response?.data?.message || "Echec de l'echange de code.");
+        setError(err.response?.data?.message || t("callback.errorExchange"));
       });
-  }, [code, status, completeLogin, navigate]);
+  }, [code, status, completeLogin, navigate, t]);
 
   return (
     <div className="auth-page">
-      <div className="auth-card">
+      <div className="auth-card callback-card">
         {error ? (
           <>
-            <h1>Connexion echouee</h1>
-            <p className="error">{error}</p>
+            <h1>{t("callback.titleError")}</h1>
+            <p className="error" style={{ width: "100%" }}>{error}</p>
             <Link to="/login" className="button-link">
-              Retour a la connexion
+              {t("callback.backToLogin")}
             </Link>
           </>
         ) : (
           <>
-            <h1>Connexion en cours...</h1>
-            <p className="muted">Recuperation de tes informations Spotify.</p>
+            <div className="loading-spinner" aria-hidden="true" />
+            <h1>
+              <span className="gradient-text">{t("callback.titleLoading")}</span>
+            </h1>
+            <p className="muted" style={{ margin: 0 }}>
+              {t("callback.textLoading")}
+            </p>
           </>
         )}
       </div>

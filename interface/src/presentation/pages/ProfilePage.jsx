@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../application/auth/AuthContext";
+import { useI18n } from "../../application/i18n/I18nContext";
 import { spotifyApi } from "../../infrastructure/api/spotify";
 import { usersApi } from "../../infrastructure/api/users";
 import { extractApiError } from "../utils/extractApiError";
 
 export default function ProfilePage() {
   const { user, setUser, logout } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
 
   const [editing, setEditing] = useState(false);
@@ -34,9 +36,9 @@ export default function ProfilePage() {
     spotifyApi
       .topArtists({ time_range: "medium_term", limit: 12 })
       .then((data) => setArtists(data.artists))
-      .catch((err) => setArtistsError(extractApiError(err, "Impossible de charger tes artistes Spotify")))
+      .catch((err) => setArtistsError(extractApiError(err, t("profile.errorArtists"))))
       .finally(() => setArtistsLoading(false));
-  }, []);
+  }, [t]);
 
   const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
@@ -55,7 +57,7 @@ export default function ProfilePage() {
       setUser(updated);
       setEditing(false);
     } catch (err) {
-      setError(extractApiError(err, "Impossible de sauvegarder le profil"));
+      setError(extractApiError(err, t("profile.errorSave")));
     } finally {
       setSaving(false);
     }
@@ -88,15 +90,15 @@ export default function ProfilePage() {
           <p className="muted">{user.email}</p>
         </div>
         <button className="ghost" onClick={onLogout}>
-          Se deconnecter
+          {t("profile.logout")}
         </button>
       </header>
 
       <section className="card">
         <div className="card-header">
-          <h2>Informations</h2>
+          <h2>{t("profile.sectionInfo")}</h2>
           {!editing && (
-            <button onClick={() => setEditing(true)}>Modifier</button>
+            <button onClick={() => setEditing(true)}>{t("profile.edit")}</button>
           )}
         </div>
 
@@ -104,16 +106,16 @@ export default function ProfilePage() {
           <form onSubmit={onSave} className="profile-form">
             <div className="form-row">
               <label>
-                Prenom
+                {t("profile.firstName")}
                 <input value={form.first_name} onChange={update("first_name")} required />
               </label>
               <label>
-                Nom
+                {t("profile.lastName")}
                 <input value={form.last_name} onChange={update("last_name")} required />
               </label>
             </div>
             <label>
-              URL de l'avatar (laisser vide pour supprimer)
+              {t("profile.avatarUrl")}
               <input
                 type="url"
                 value={form.avatar_url}
@@ -124,10 +126,10 @@ export default function ProfilePage() {
             {error && <p className="error">{error}</p>}
             <div className="form-actions">
               <button type="button" className="ghost" onClick={() => setEditing(false)}>
-                Annuler
+                {t("profile.cancel")}
               </button>
               <button type="submit" disabled={saving}>
-                {saving ? "Sauvegarde..." : "Enregistrer"}
+                {saving ? t("profile.saving") : t("profile.save")}
               </button>
             </div>
           </form>
@@ -138,34 +140,40 @@ export default function ProfilePage() {
 
       <section className="card">
         <div className="card-header">
-          <h2>Tes artistes Spotify</h2>
+          <h2>{t("profile.sectionArtists")}</h2>
         </div>
         {artistsLoading ? (
-          <p className="muted">Chargement...</p>
+          <div className="artists-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="artist-skeleton">
+                <div className="skeleton-circle" />
+                <div className="skeleton-line" />
+              </div>
+            ))}
+          </div>
         ) : artistsError ? (
           <p className="error">{artistsError}</p>
         ) : artists?.length ? (
           <div className="artists-grid">
-            {artists.map((a) => (
+            {artists.map((a, i) => (
               <a
                 key={a.id}
                 className="artist-card"
                 href={a.spotify_url}
                 target="_blank"
                 rel="noreferrer"
+                style={{ "--i": i }}
               >
-                {a.image_url ? (
-                  <img src={a.image_url} alt={a.name} />
-                ) : (
-                  <div className="artist-placeholder" />
-                )}
+                <div className="artist-card-img-wrap">
+                  {a.image_url && <img src={a.image_url} alt={a.name} />}
+                </div>
                 <div className="artist-name">{a.name}</div>
                 {a.genres?.[0] && <div className="artist-genre muted">{a.genres[0]}</div>}
               </a>
             ))}
           </div>
         ) : (
-          <p className="muted">Aucun artiste trouve. Ecoute un peu de musique sur Spotify et reviens !</p>
+          <p className="muted">{t("profile.artistsEmpty")}</p>
         )}
       </section>
     </div>
