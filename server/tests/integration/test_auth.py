@@ -1,3 +1,9 @@
+import pytest
+
+# Auth email/mot de passe est desactivee : Spotify est le seul mecanisme de login.
+# Les use cases sont conserves, mais les routes /register et /login ne sont plus exposees.
+pytestmark = pytest.mark.skip(reason="Email/password auth disabled, Spotify-only login")
+
 AUTH = "/api/v1/auth"
 
 VALID_PAYLOAD = {

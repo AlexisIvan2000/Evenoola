@@ -14,6 +14,10 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
+  const [artists, setArtists] = useState(null);
+  const [artistsLoading, setArtistsLoading] = useState(true);
+  const [artistsError, setArtistsError] = useState(null);
+
   // Pre-remplit le formulaire d'edition quand on bascule en mode "editer".
   useEffect(() => {
     if (editing && user) {
@@ -25,7 +29,14 @@ export default function ProfilePage() {
     }
   }, [editing, user]);
 
-  // ---------- Edition profil ----------
+  // Charge les top artists au montage. Spotify est connecte par definition (login = Spotify).
+  useEffect(() => {
+    spotifyApi
+      .topArtists({ time_range: "medium_term", limit: 12 })
+      .then((data) => setArtists(data.artists))
+      .catch((err) => setArtistsError(extractApiError(err, "Impossible de charger tes artistes Spotify")))
+      .finally(() => setArtistsLoading(false));
+  }, []);
 
   const update = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
@@ -47,17 +58,6 @@ export default function ProfilePage() {
       setError(extractApiError(err, "Impossible de sauvegarder le profil"));
     } finally {
       setSaving(false);
-    }
-  };
-
-  // ---------- Connexion Spotify ----------
-
-  const onConnectSpotify = async () => {
-    try {
-      const { auth_url } = await spotifyApi.connect();
-      window.location.href = auth_url;
-    } catch (err) {
-      setError(extractApiError(err, "Impossible de demarrer la connexion Spotify"));
     }
   };
 
@@ -138,13 +138,35 @@ export default function ProfilePage() {
 
       <section className="card">
         <div className="card-header">
-          <h2>Spotify</h2>
+          <h2>Tes artistes Spotify</h2>
         </div>
-        <p className="muted">
-          Connecte ton compte Spotify pour qu'Evenoola te recommande des evenements selon tes
-          artistes et genres preferes.
-        </p>
-        <button onClick={onConnectSpotify}>Connecter Spotify</button>
+        {artistsLoading ? (
+          <p className="muted">Chargement...</p>
+        ) : artistsError ? (
+          <p className="error">{artistsError}</p>
+        ) : artists?.length ? (
+          <div className="artists-grid">
+            {artists.map((a) => (
+              <a
+                key={a.id}
+                className="artist-card"
+                href={a.spotify_url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {a.image_url ? (
+                  <img src={a.image_url} alt={a.name} />
+                ) : (
+                  <div className="artist-placeholder" />
+                )}
+                <div className="artist-name">{a.name}</div>
+                {a.genres?.[0] && <div className="artist-genre muted">{a.genres[0]}</div>}
+              </a>
+            ))}
+          </div>
+        ) : (
+          <p className="muted">Aucun artiste trouve. Ecoute un peu de musique sur Spotify et reviens !</p>
+        )}
       </section>
     </div>
   );

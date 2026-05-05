@@ -24,3 +24,7 @@ class SpotifyAuthError(DomainError):
 
 class SpotifyNotConnected(DomainError):
     pass
+
+
+class InvalidLoginCode(DomainError):
+    pass

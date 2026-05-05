@@ -16,7 +16,7 @@ API_PREFIX = "/api/v1"
 info = Info(
     title="Evenoola API",
     version="1.0.0",
-    description="Backend Evenoola — auth, decouverte d'evenements, vote collaboratif",
+    description="Backend Evenoola",
 )
 
 

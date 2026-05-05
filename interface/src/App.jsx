@@ -1,10 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./application/auth/AuthContext";
 import { RequireAuth } from "./presentation/components/RequireAuth";
+import AuthCallbackPage from "./presentation/pages/AuthCallbackPage";
 import LoginPage from "./presentation/pages/LoginPage";
 import ProfilePage from "./presentation/pages/ProfilePage";
-import RegisterPage from "./presentation/pages/RegisterPage";
-import SpotifyConnectedPage from "./presentation/pages/SpotifyConnectedPage";
 import "./App.css";
 
 export default function App() {
@@ -13,20 +12,12 @@ export default function App() {
       <AuthProvider>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
           <Route
             path="/profile"
             element={
               <RequireAuth>
                 <ProfilePage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/spotify/connected"
-            element={
-              <RequireAuth>
-                <SpotifyConnectedPage />
               </RequireAuth>
             }
           />

@@ -1,10 +1,6 @@
 import { api } from "./client";
 
 export const spotifyApi = {
-  // Renvoie { auth_url } : on redirige le navigateur dessus pour autoriser Spotify.
-  connect() {
-    return api.get("/spotify/connect").then((r) => r.data);
-  },
   // time_range : "short_term" | "medium_term" | "long_term"
   // limit : 1..50
   topArtists({ time_range = "medium_term", limit = 20 } = {}) {

@@ -25,16 +25,16 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false));
   }, []);
 
-  const login = useCallback(async (email, password) => {
-    const tokens = await authApi.login({ email, password });
-    tokenStorage.set(tokens.access_token, tokens.refresh_token);
-    const me = await usersApi.me();
-    setUser(me);
-    return me;
+  // Demarre le flow Spotify : on redirige le navigateur vers la page de consentement.
+  const loginWithSpotify = useCallback(async () => {
+    const { auth_url } = await authApi.spotifyLoginUrl();
+    window.location.href = auth_url;
   }, []);
 
-  const register = useCallback(async (data) => {
-    const tokens = await authApi.register(data);
+  // Apres le redirect Spotify -> backend -> /auth/callback?code=..., on echange
+  // le code one-shot contre les vrais JWT puis on reconstruit la session.
+  const completeLogin = useCallback(async (exchangeCode) => {
+    const tokens = await authApi.exchange(exchangeCode);
     tokenStorage.set(tokens.access_token, tokens.refresh_token);
     const me = await usersApi.me();
     setUser(me);
@@ -55,7 +55,7 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
-  const value = { user, loading, login, register, logout, setUser };
+  const value = { user, loading, loginWithSpotify, completeLogin, logout, setUser };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

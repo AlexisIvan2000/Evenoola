@@ -5,6 +5,7 @@ from pydantic import ValidationError
 
 from app.domain.exceptions import (
     InvalidCredentials,
+    InvalidLoginCode,
     InvalidRefreshToken,
     SpotifyAuthError,
     SpotifyNotConnected,
@@ -42,6 +43,10 @@ def register_error_handlers(flask_app: Flask) -> None:
     @flask_app.errorhandler(SpotifyNotConnected)
     def _spotify_not_connected(e: SpotifyNotConnected):
         return jsonify({"error": "spotify_not_connected", "message": str(e)}), 409
+
+    @flask_app.errorhandler(InvalidLoginCode)
+    def _invalid_login_code(e: InvalidLoginCode):
+        return jsonify({"error": "invalid_login_code", "message": str(e)}), 401
 
     @flask_app.errorhandler(429)
     def _rate_limited(e):
